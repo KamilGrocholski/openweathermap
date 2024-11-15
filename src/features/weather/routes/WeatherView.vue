@@ -16,72 +16,75 @@ const searchState = ref<"error" | "loading" | "found" | "not_found" | null>(null
 const inputErrorMessage = ref<string | null>(null);
 const weatherForecastResponse = ref<WeatherForecastResponse | null>(null);
 
-const weatherChartData = computed<WeatherChartData | null>(() => 
+const weatherChartData = computed<WeatherChartData | null>(() =>
     weatherForecastResponse.value ? mapWeatherForecastResponseToWeatherChartData(weatherForecastResponse.value) : null);
-const weatherListData = computed<WeatherListDataItem[] | null>(() => 
+const weatherListData = computed<WeatherListDataItem[] | null>(() =>
     weatherForecastResponse.value ? mapWeatherForecastResponseToWeatherListData(weatherForecastResponse.value) : null);
 
 function handleSearch() {
-  if (searchState.value === "loading") return;
+    if (searchState.value === "loading") return;
 
-  if (!city.value.trim()) {
-    inputErrorMessage.value = "City name cannot be empty.";
-    return;
-  }
+    if (!city.value.trim()) {
+        inputErrorMessage.value = "City name cannot be empty.";
+        return;
+    }
 
-  inputErrorMessage.value = null;
-  weatherForecastResponse.value = null;
-  searchState.value = "loading";
-  
-  getWeatherForecast({ city: city.value })
-    .then((data) => {
-      weatherForecastResponse.value = data;
-      searchState.value = "found";
-    })
-    .catch((err) => {
-      searchState.value = err instanceof ResponseError && err.response.status === 404 ? "not_found" : "error";
-    });
+    inputErrorMessage.value = null;
+    weatherForecastResponse.value = null;
+    searchState.value = "loading";
+
+    getWeatherForecast({ city: city.value })
+        .then((data) => {
+            weatherForecastResponse.value = data;
+            searchState.value = "found";
+        })
+        .catch((err) => {
+            searchState.value = err instanceof ResponseError && err.response.status === 404 ? "not_found" : "error";
+        });
 }
 
 function mapWeatherForecastResponseToWeatherChartData(response: WeatherForecastResponse): WeatherChartData {
-  return {
-    cityName: response.city.name,
-    timeline: response.list.map((self) => new Date(self.dt_txt)),
-    temperatures: response.list.map((self) => self.main.temp),
-  };
+    return {
+        cityName: response.city.name,
+        timeline: response.list.map((self) => new Date(self.dt_txt)),
+        temperatures: response.list.map((self) => self.main.temp),
+    };
 }
 
 function mapWeatherForecastResponseToWeatherListData(response: WeatherForecastResponse): WeatherListDataItem[] {
-  return response.list.map((self) => ({
-    time: new Date(self.dt_txt),
-    temperature: self.main.temp,
-  }));
+    return response.list.map((self) => ({
+        time: new Date(self.dt_txt),
+        temperature: self.main.temp,
+    }));
 }
 </script>
 
 <template>
-</tem  <MainLayout>
-    <div class="wrapper">
-      <div class="weather-form-wrapper">
-        <form @submit.prevent="handleSearch">
-          <BaseInput v-model="city" autofocus placeholder="Search city" :disabled="searchState === 'loading'" />
-          <BaseButton type="submit" :is-loading="searchState === 'loading'" :disabled="searchState === 'loading'">Search</BaseButton>
-        </form>
-        <p v-if="inputErrorMessage" class="error-message">{{ inputErrorMessage }}</p>
-      </div>
+    <MainLayout>
+        <div class="wrapper">
+            <div class="weather-form-wrapper">
+                <form @submit.prevent="handleSearch">
+                    <BaseInput v-model="city" autofocus placeholder="Search city"
+                        :disabled="searchState === 'loading'" />
+                    <BaseButton type="submit" :is-loading="searchState === 'loading'"
+                        :disabled="searchState === 'loading'">Search</BaseButton>
+                </form>
+                <p v-if="inputErrorMessage" class="error-message">{{ inputErrorMessage }}</p>
+            </div>
 
-      <div v-if="searchState === null">
-        Check the weather forecast by typing a city name in the search bar.
-      </div>
-      <div v-else-if="searchState === 'loading'">Searching...</div>
-      <div v-else-if="searchState === 'error'">An error occurred while trying to get the data.</div>
-      <div v-else-if="searchState === 'not_found'">City not found.</div>
-      <div v-else-if="searchState === 'found'">
-        <WeatherChart v-if="weatherChartData" :data="weatherChartData" />
-        <WeatherList v-if="weatherListData" :data="weatherListData" />
-      </div>
-    </div>
-  </MainLayout>plate>
+            <div v-if="searchState === null">
+                Check the weather forecast by typing a city name in the search bar.
+            </div>
+            <div v-else-if="searchState === 'loading'">Searching...</div>
+            <div v-else-if="searchState === 'error'">An error occurred while trying to get the data.</div>
+            <div v-else-if="searchState === 'not_found'">City not found.</div>
+            <div v-else-if="searchState === 'found'">
+                <WeatherChart v-if="weatherChartData" :data="weatherChartData" />
+                <WeatherList v-if="weatherListData" :data="weatherListData" />
+            </div>
+        </div>
+    </MainLayout>
+</template>
 
 <style scoped>
 .wrapper {
