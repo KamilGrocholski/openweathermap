@@ -64,12 +64,14 @@ function mapWeatherForecastResponseToWeatherListData(response: WeatherForecastRe
         <div class="wrapper">
             <div class="weather-form-wrapper">
                 <form @submit.prevent="handleSearch">
-                    <BaseInput v-model="city" autofocus placeholder="Search city"
-                        :disabled="searchState === 'loading'" />
-                    <BaseButton type="submit" :is-loading="searchState === 'loading'"
-                        :disabled="searchState === 'loading'">Search</BaseButton>
+                    <div>
+                        <BaseInput v-model="city" autofocus placeholder="Search city"
+                            :disabled="searchState === 'loading'" />
+                        <BaseButton type="submit" :is-loading="searchState === 'loading'"
+                            :disabled="searchState === 'loading'">Search</BaseButton>
+                    </div>
+                    <p v-if="inputErrorMessage" class="error-message">{{ inputErrorMessage }}</p>
                 </form>
-                <p v-if="inputErrorMessage" class="error-message">{{ inputErrorMessage }}</p>
             </div>
 
             <div v-if="searchState === null">
