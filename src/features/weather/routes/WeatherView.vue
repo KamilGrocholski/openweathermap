@@ -56,7 +56,8 @@ function mapWeatherForecastResponseToWeatherListData(response: WeatherForecastRe
     time: new Date(self.dt_txt),
     temperature: self.main.temp,
   }));
-}</script>
+}
+</script>
 
 <template>
 </tem  <MainLayout>
